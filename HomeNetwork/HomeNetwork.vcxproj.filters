@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="UARTProtocol">
+      <UniqueIdentifier>{9ca2b962-73f9-4f2f-8303-6e6889cc63d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FIFO">
+      <UniqueIdentifier>{2f366e4e-98d7-419e-af78-05b14bd5a9b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Serial">
+      <UniqueIdentifier>{0e5cd37f-a075-4542-ae08-3b25df876492}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="HomeNetwork.ino" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="__vm\.HomeNetwork.vsarduino.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FIFO.h">
+      <Filter>FIFO</Filter>
+    </ClInclude>
+    <ClInclude Include="ISerial.h">
+      <Filter>Serial</Filter>
+    </ClInclude>
+    <ClInclude Include="SerialHW.h">
+      <Filter>Serial</Filter>
+    </ClInclude>
+    <ClInclude Include="UARTProtocol.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FIFO.cpp">
+      <Filter>FIFO</Filter>
+    </ClCompile>
+    <ClCompile Include="SerialHW.cpp">
+      <Filter>Serial</Filter>
+    </ClCompile>
+    <ClCompile Include="UARTProtocol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
