@@ -1,9 +1,11 @@
 #include <NeoHWSerial.h>
 #include "SerialHW.h"
 
+
 SerialHW::SerialHW()
 {
 	baudRate = -1;
+	fifo = new FIFO(20);
 }
 
 SerialHW::~SerialHW()
@@ -23,12 +25,18 @@ void SerialHW::setCallBackFunction(retFunction interruptFunction)
 	NeoSerial.attachInterrupt(interruptFunction);
 }
 
-void SerialHW::sendBytes(const char* bytesToSend, uint8_t size)
+int SerialHW::sendBytes(const char* bytesToSend, uint8_t size)
 {
+	int ret = 0;
 	for(int x=0; x < size; x++)
 	{
-		fifo->pushByte(bytesToSend[x]);
+		if(!fifo->pushByte(bytesToSend[x]))
+		{
+			break;
+		}
+		ret++;
 	}
+	return ret;
 }
 
 bool SerialHW::initSerial()
@@ -47,4 +55,9 @@ void SerialHW::run()
 			NeoSerial.write(data);
 		}
 	}
+}
+
+bool SerialHW::sendByte(uint8_t data)
+{
+	return fifo->pushByte(data);
 }

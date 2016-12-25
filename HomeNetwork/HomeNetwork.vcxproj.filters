@@ -22,6 +22,9 @@
     <Filter Include="Serial">
       <UniqueIdentifier>{0e5cd37f-a075-4542-ae08-3b25df876492}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Logger">
+      <UniqueIdentifier>{65922c60-a2fa-4c0c-ba76-2ac13c000dfa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="HomeNetwork.ino" />
@@ -42,6 +45,9 @@
     <ClInclude Include="UARTProtocol.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="LoggerSoftSerial.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FIFO.cpp">
@@ -52,6 +58,9 @@
     </ClCompile>
     <ClCompile Include="UARTProtocol.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LoggerSoftSerial.cpp">
+      <Filter>Logger</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

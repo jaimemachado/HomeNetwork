@@ -5,15 +5,22 @@
 */
 
 
-
 #include <arduino.h>
 #include "UARTProtocol.h"
 
 UARTProtocol protocol(UARTProtocolBaudRate::BAUD9600);
 
+
+
+
 // the setup function runs once when you press reset or power the board
 void setup() {
 	pinMode(9, OUTPUT);
+
+
+	digitalWrite(10, LOW);    // turn the LED off by making the voltage LOW
+	digitalWrite(11, LOW);    // turn the LED off by making the voltage LOW
+	digitalWrite(12, LOW);    // turn the LED off by making the voltage LOW
 	protocol.init();
 
 }
@@ -24,6 +31,7 @@ void loop() {
 	delay(50);              // wait for a second
 	digitalWrite(9, LOW);    // turn the LED off by making the voltage LOW
 	delay(50);              // wait for a second
-	protocol.pushByteInRXBuffer(2);
+	protocol.run();
+
 }
 

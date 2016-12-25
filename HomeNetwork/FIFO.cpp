@@ -2,7 +2,6 @@
 
 #include <stdlib.h>
 #include "FIFO.h"
- 
 
 FIFO::FIFO(uint8_t size)
 {
