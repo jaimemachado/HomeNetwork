@@ -1,8 +1,9 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes'?>
 <WORKSPACE>
- <FRAME activewindow="0">
-  <PLACEMENT>2c0000000200000003000000ffffffffffffffffffffffffffffffffd2000000110000002e09000071050000</PLACEMENT>
+ <FRAME activewindow="1">
+  <PLACEMENT>2c00000002000000030000000083ffff0083ffffffffffffffffffffd2000000110000002e09000071050000</PLACEMENT>
   <WINDOW type="default" module="ISIS"/>
+  <WINDOW type="default" module="VSMDEBUG"/>
  </FRAME>
  <MODULE name="VSMDEBUG">
   <PWI>
@@ -32,7 +33,19 @@
      <ITEM name="nItems">0</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="450" x="77" flags="00008063" y="168" h="250" pid="0" iid="4">
+   <POPUP w="450" x="174" flags="00000063" y="1003" h="250" pid="0" iid="7">
+    <PROPERTIES>
+     <ITEM name="AutoEcho">0</ITEM>
+     <ITEM name="HexMode">0</ITEM>
+    </PROPERTIES>
+   </POPUP>
+   <POPUP w="450" x="643" flags="00008063" y="1014" h="250" pid="0" iid="8">
+    <PROPERTIES>
+     <ITEM name="AutoEcho">0</ITEM>
+     <ITEM name="HexMode">0</ITEM>
+    </PROPERTIES>
+   </POPUP>
+   <POPUP w="450" x="680" flags="00000063" y="193" h="250" pid="0" iid="16">
     <PROPERTIES>
      <ITEM name="AutoEcho">0</ITEM>
      <ITEM name="HexMode">0</ITEM>
@@ -71,7 +84,7 @@
      <ITEM name="TopLineAddress">00000000</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="16" x="177" flags="80000000" y="268" h="32" pid="14" iid="1">
+   <POPUP w="16" x="217" flags="80000000" y="308" h="32" pid="14" iid="1">
     <PROPERTIES>
      <ITEM name="DataType">2</ITEM>
      <ITEM name="DispChars">Yes</ITEM>
@@ -103,15 +116,13 @@
    </POPUP>
    <POPUP w="2110" x="6" flags="0000002b" y="102" h="1028" pid="1" iid="1">
     <PROPERTIES>
-     <ITEM name="Breakpoint 0">"main",100E,0118,7868,D1FF,-1
-</ITEM>
      <ITEM name="CaseSensitive">No</ITEM>
      <ITEM name="DISPADDRS">Yes</ITEM>
      <ITEM name="DISPLNUMS">No</ITEM>
      <ITEM name="DISPOPCODES">No</ITEM>
      <ITEM name="FIXUPBPTS">Yes</ITEM>
      <ITEM name="WordsOnly">No</ITEM>
-     <ITEM name="nBreakpoints">1</ITEM>
+     <ITEM name="nBreakpoints">0</ITEM>
     </PROPERTIES>
    </POPUP>
    <POPUP w="2114" x="5" flags="0000000b" y="1161" h="192" pid="2" iid="1">
@@ -129,34 +140,6 @@
      <ITEM name="Value Column Width">704</ITEM>
      <ITEM name="Version">100</ITEM>
      <ITEM name="nItems">0</ITEM>
-    </PROPERTIES>
-   </POPUP>
-   <POPUP w="450" x="255" flags="00000063" y="750" h="250" pid="0" iid="13">
-    <PROPERTIES>
-     <ITEM name="AutoEcho">0</ITEM>
-     <ITEM name="HexMode">0</ITEM>
-    </PROPERTIES>
-   </POPUP>
-   <POPUP w="450" x="211" flags="00000063" y="757" h="250" pid="0" iid="16">
-    <PROPERTIES>
-     <ITEM name="AutoEcho">0</ITEM>
-     <ITEM name="HexMode">0</ITEM>
-    </PROPERTIES>
-   </POPUP>
-   <POPUP w="901" x="265" flags="00000022" y="491" h="338" pid="0" iid="17">
-    <PROPERTIES>
-     <ITEM name="ComboBox1000">S</ITEM>
-     <ITEM name="ComboBox1001">Sr</ITEM>
-     <ITEM name="ComboBox1002">P</ITEM>
-     <ITEM name="ComboBox1003">A</ITEM>
-     <ITEM name="ComboBox1004">N</ITEM>
-     <ITEM name="ComboBox1005">S</ITEM>
-     <ITEM name="ComboBox1006">Sr</ITEM>
-     <ITEM name="ComboBox1007">P</ITEM>
-     <ITEM name="ComboBox1008">A</ITEM>
-     <ITEM name="ComboBox1009">N</ITEM>
-     <ITEM name="HSplitter1Pos">100</ITEM>
-     <ITEM name="VSplitter1Pos">238</ITEM>
     </PROPERTIES>
    </POPUP>
   </PWI>

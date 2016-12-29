@@ -21,12 +21,31 @@ enum UARTProtocolBaudRate {
 	BAUD38400 =38400
 };
 
-
 struct ProtocolPackage
 {
+	unsigned char* data;
+	uint8_t dataSize;
+	ProtocolPackage()
+	{
+		data = nullptr;
+		dataSize = 0;
+	}
+	~ProtocolPackage()
+	{
+		if(data != nullptr)
+		{
+			delete data;
+		}
+	}
+};
+
+
+struct CommandPackage
+{
+	uint8_t destID;
 	uint8_t senderID;
 	uint8_t command;
-	uint8_t* data;
+	const unsigned char* data;
 	uint8_t dataSize;
 };
 
@@ -37,12 +56,16 @@ class UARTProtocol {
 		WAIT_SYNCBYTE = 0,
 		WAIT_SIZE = 1,
 		WAIT_NSIZE = 2,
-		WAIT_COMMAND = 3,
-		WAIT_DATA = 4,
-		WAIT_CRC = 5
+		WAIT_DESTADDR = 3,
+		WAIT_ORIADDR = 4,
+		WAIT_COMMAND = 5,
+		WAIT_DATA = 6,
+		WAIT_CRC = 7
 
 	};
 
+
+	char port_[10];
 	UARTProtocolStages state;
 	UARTProtocolBaudRate baudrate_;
 	uint8_t inBuffer_[UARTPROTOCOL_INBUFFERSIZE];
@@ -55,21 +78,27 @@ class UARTProtocol {
 
 	bool byteAvailable();
 	bool getByte(uint8_t& data);
-	FIFO* bufferRX_;
+	IFIFO* bufferRX_;
 	uint8_t countLog;
 	void changeToState(const UARTProtocolStages setState);
 
 	//Protocol Info
 	uint8_t dataSize;
+	uint8_t localAdress_;
 
+
+	uint16_t CalculateCRC16(const CommandPackage& package);
+
+	bool CreatePackage(const CommandPackage& command, ProtocolPackage& protPackage);
+	uint8_t twos_complement(uint8_t val);
 
 public:
 	~UARTProtocol();
-	void init();
+	void init(uint8_t localAddress);
 	void run();
-	UARTProtocol(UARTProtocolBaudRate baudRate);
+	UARTProtocol(const char* port, UARTProtocolBaudRate baudRate);
 
-	void SendData(const char* string, uint8_t size);
+	void SendCommand(const uint8_t& command, const uint8_t& destAddr, const unsigned char* string, const uint8_t& size);
 
 	void pushByteInRXBuffer(uint8_t byte);
 };

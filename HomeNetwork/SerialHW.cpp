@@ -15,17 +15,12 @@ SerialHW::~SerialHW()
 	delete fifo;
 }
 
-void SerialHW::setBaudRate(int baudRate)
-{
-	this->baudRate = baudRate;
-}
-
 void SerialHW::setCallBackFunction(retFunction interruptFunction)
 {
 	NeoSerial.attachInterrupt(interruptFunction);
 }
 
-int SerialHW::sendBytes(const char* bytesToSend, uint8_t size)
+int SerialHW::sendBytes(const unsigned char* bytesToSend, uint8_t size)
 {
 	int ret = 0;
 	for(int x=0; x < size; x++)
@@ -39,8 +34,9 @@ int SerialHW::sendBytes(const char* bytesToSend, uint8_t size)
 	return ret;
 }
 
-bool SerialHW::initSerial()
+bool SerialHW::initSerial(const char* port, int baudrate)
 {
+	baudRate = baudrate;
 	NeoSerial.begin(baudRate);
 	while (!NeoSerial) {}
 }
@@ -57,7 +53,7 @@ void SerialHW::run()
 	}
 }
 
-bool SerialHW::sendByte(uint8_t data)
+bool SerialHW::sendByte(unsigned char data)
 {
 	return fifo->pushByte(data);
 }

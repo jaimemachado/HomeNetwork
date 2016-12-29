@@ -42,11 +42,14 @@
     <ClInclude Include="SerialHW.h">
       <Filter>Serial</Filter>
     </ClInclude>
-    <ClInclude Include="UARTProtocol.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="LoggerSoftSerial.h">
       <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="UARTProtocol.h">
+      <Filter>UARTProtocol</Filter>
+    </ClInclude>
+    <ClInclude Include="IFIFO.h">
+      <Filter>FIFO</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -56,11 +59,11 @@
     <ClCompile Include="SerialHW.cpp">
       <Filter>Serial</Filter>
     </ClCompile>
-    <ClCompile Include="UARTProtocol.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LoggerSoftSerial.cpp">
       <Filter>Logger</Filter>
+    </ClCompile>
+    <ClCompile Include="UARTProtocol.cpp">
+      <Filter>UARTProtocol</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

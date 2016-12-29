@@ -1,9 +1,18 @@
 #include "UARTProtocol.h"
 
-#include "SerialHW.h"
+
+
+#ifndef WIN32_
+
 #include <arduino.h>
 
 #include <util/crc16.h>
+#include "SerialHW.h"
+#else
+
+#include "../Libraries/SerialLibX86/SerialLib.h"
+#include "../Libraries/FIFO/FIFOWin.h"
+#endif
 
 
 
@@ -16,17 +25,33 @@ static void uartInterruptFunc(uint8_t byte)
 	}
 }
 
-UARTProtocol::UARTProtocol(UARTProtocolBaudRate baudRate) 
+UARTProtocol::UARTProtocol(const char* port, UARTProtocolBaudRate baudRate)
 {
 
 	state = WAIT_SYNCBYTE;
 	flagsError_ = 0;
 	baudrate_ = baudRate;
+	if(strlen(port) > 10)
+	{
+		logPrintf0(logger_, "Error port name too long - Using default COM1");
+		strcpy(port_, "COM1");
+	}else
+	{
+		strcpy(port_, port);
+	}
+
+	
+
+
+#ifndef WIN32_
 	bufferRX_ = new FIFO(20);
 	serial_ = new SerialHW();
 	logger_ = LoggerSoftSerial::getInstance();
+#else
+	bufferRX_ = new FIFOWin();
+	serial_ = new SerialLib();
 
-	logger_->log("Teste");
+#endif
 	logPrintf0(logger_, "Change from state");
 
 	countLog = 0;
@@ -64,25 +89,29 @@ UARTProtocol::~UARTProtocol()
 	delete bufferRX_;
 }
 
-void UARTProtocol::init()
+void UARTProtocol::init(uint8_t localAddress)
 {
+#ifndef WIN32_
+	while (countLog < 10)
+	{
+		logger_->log("Teste3");
+		countLog++;
+	}
+#endif
 	uartInstance = this;
 	serial_->setCallBackFunction(uartInterruptFunc);
-	serial_->setBaudRate(baudrate_);
-	serial_->initSerial();
+	serial_->initSerial(port_, baudrate_);
+	localAdress_ = localAddress;
 
+	logPrintf1(logger_, "Init protocol on address: %d", localAddress);
 }
 
 void UARTProtocol::run()
 {
 	serial_->run();
 	
-	if(countLog < 10)
-	{
-		logger_->log("Teste3");
-		countLog++;
-	}
-
+	
+	//Receive Machine
 	while (byteAvailable()) {
 		uint8_t data;
 	    getByte(data);
@@ -100,7 +129,7 @@ void UARTProtocol::run()
 				changeToState(WAIT_NSIZE);
 				break;
 			case WAIT_NSIZE: 
-				if(dataSize == !data)
+				if(twos_complement(dataSize) == data)
 				{
 					changeToState(WAIT_COMMAND);
 				}else
@@ -110,6 +139,10 @@ void UARTProtocol::run()
 				}
 				
 				break;
+			case WAIT_DESTADDR: 
+				break;
+			case WAIT_ORIADDR: 
+				break;
 			case WAIT_COMMAND: 
 				break;
 			case WAIT_DATA: 
@@ -117,6 +150,7 @@ void UARTProtocol::run()
 			case WAIT_CRC: 
 				break;
 			default: break;
+
 		}
 
 
@@ -125,9 +159,54 @@ void UARTProtocol::run()
 	}
 }
 
-void UARTProtocol::SendData(const char* string, uint8_t size) 
+uint16_t UARTProtocol::CalculateCRC16(const CommandPackage& package)
 {
-	int bytesSent = serial_->sendBytes(string, size);
+	return 0x1234;
+}
+
+bool UARTProtocol::CreatePackage(const CommandPackage& command, ProtocolPackage& protPackage)
+{
+
+	protPackage.dataSize = command.dataSize + 8;
+	protPackage.data = static_cast<unsigned char*>(malloc(protPackage.dataSize));
+
+	protPackage.data[0] = SYNC_BYTE;                   //SyncByte
+	protPackage.data[1] = command.dataSize;			  //Data Size
+	protPackage.data[2] = twos_complement(command.dataSize);			  //Data !Size
+	protPackage.data[3] = command.destID;              //Destination Address
+	protPackage.data[4] = command.senderID;            //Origin Address
+	protPackage.data[5] = command.command;             //Command
+	memcpy(&protPackage.data[6], command.data, command.dataSize);
+	uint8_t crcIndex = command.dataSize + 6;
+
+	uint16_t crc16 = CalculateCRC16(command);
+
+	uint8_t crc16_1 = (crc16 >> 8);
+	uint8_t crc16_2 = (crc16 & 0x00FF);
+	protPackage.data[crcIndex] = crc16_1;
+	protPackage.data[crcIndex+1] = crc16_2;
+
+	return true;
+}
+
+uint8_t UARTProtocol::twos_complement(uint8_t val)
+{
+	return -(unsigned int)val;
+}
+
+
+void UARTProtocol::SendCommand(const uint8_t& command, const uint8_t& destAddr, const unsigned char* string, const uint8_t& size)
+{
+	CommandPackage cmdPackage;
+	ProtocolPackage protPackage;
+	cmdPackage.senderID = localAdress_;
+	cmdPackage.destID = destAddr;
+	cmdPackage.command = command;
+	cmdPackage.dataSize = size;
+	cmdPackage.data = string;
+	
+	bool packageOK = CreatePackage(cmdPackage, protPackage);
+	int bytesSent = serial_->sendBytes(protPackage.data, protPackage.dataSize);
 }
 
 void UARTProtocol::pushByteInRXBuffer(uint8_t byte)

@@ -9,11 +9,11 @@ class SerialHW : public ISerial
 	public:
 		SerialHW();
 		virtual ~SerialHW();
-		void setBaudRate(int baudRate) override;
 		void setCallBackFunction(retFunction interruptFunction) override;
-		int sendBytes(const char* bytesToSend, uint8_t size) override;
-		bool initSerial() override;
+		int sendBytes(const unsigned char* bytesToSend, uint8_t size) override;
+		bool initSerial(const char* port, int baudrate) override;
 		void run() override;
-		bool sendByte(uint8_t data) override;
+		bool sendByte(unsigned char data) override;
+	
 };
 
