@@ -8,7 +8,6 @@ SerialLib::SerialLib()
 
 SerialLib::~SerialLib()
 {
-	
 	if (serialPtr != nullptr)
 	{
 		serialPtr->close();

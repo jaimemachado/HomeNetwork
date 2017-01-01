@@ -5,7 +5,7 @@
 class SerialHW : public ISerial
 {
 		int baudRate;
-		FIFO *fifo;
+		FIFO<uint8_t> *fifo;
 	public:
 		SerialHW();
 		virtual ~SerialHW();

@@ -127,7 +127,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\HomeNetwork\UARTProtocol.cpp" />
-    <ClCompile Include="..\Libraries\FIFO\FIFOWin.cpp" />
     <ClCompile Include="serial_example.cc" />
   </ItemGroup>
   <ItemGroup>

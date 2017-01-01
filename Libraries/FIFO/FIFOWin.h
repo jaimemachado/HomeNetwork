@@ -4,16 +4,45 @@
 
 #include "../../HomeNetwork/IFIFO.h"
 
-
-class FIFOWin : public IFIFO
+template <class TYPE>
+class FIFOWin : public IFIFO<TYPE>
 {
-	std::queue<uint8_t> queue_;
+	std::queue<TYPE> queue_;
 public:
 
-	bool pushByte(uint8_t data) override;
-	bool popByte(uint8_t& data) override;
-	bool peakByte(uint8_t& data) override;
-	uint8_t getErrors() override;
-	void clearFIFO() override;
+	bool pushData(TYPE data) override
+	{
+		queue_.push(data);
+		return true;
+
+	}
+	bool popData(TYPE& data) override
+	{
+		if (queue_.empty())
+		{
+			return false;
+		}
+		data = queue_.front();
+		queue_.pop();
+		return true;
+	}
+	bool peakData(TYPE& data) override
+	{
+		if (queue_.empty())
+		{
+			return false;
+		}
+		data = queue_.front();
+		return true;
+	}
+	uint8_t getErrors() override
+	{
+		return 0;
+	}
+	void clearFIFO() override
+	{
+		std::queue<TYPE> empty;
+		std::swap(queue_, empty);
+	}
 };
 

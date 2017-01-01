@@ -5,7 +5,7 @@
 SerialHW::SerialHW()
 {
 	baudRate = -1;
-	fifo = new FIFO(20);
+	fifo = new FIFO<uint8_t>(20);
 }
 
 SerialHW::~SerialHW()
@@ -25,7 +25,7 @@ int SerialHW::sendBytes(const unsigned char* bytesToSend, uint8_t size)
 	int ret = 0;
 	for(int x=0; x < size; x++)
 	{
-		if(!fifo->pushByte(bytesToSend[x]))
+		if(!fifo->pushData(bytesToSend[x]))
 		{
 			break;
 		}
@@ -46,7 +46,7 @@ void SerialHW::run()
 	uint8_t data;
 	if(NeoSerial.availableForWrite() > 0)
 	{
-		if (fifo->popByte(data))
+		if (fifo->popData(data))
 		{
 			NeoSerial.write(data);
 		}
@@ -55,5 +55,5 @@ void SerialHW::run()
 
 bool SerialHW::sendByte(unsigned char data)
 {
-	return fifo->pushByte(data);
+	return fifo->pushData(data);
 }

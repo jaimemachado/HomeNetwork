@@ -155,7 +155,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\HomeNetwork\FIFO.cpp" />
     <ClCompile Include="FIFO-UniTest.cpp" />
     <ClCompile Include="HomeNetwork-UnitTest.cpp" />
   </ItemGroup>

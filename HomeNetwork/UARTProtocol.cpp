@@ -1,7 +1,6 @@
 #include "UARTProtocol.h"
 
 
-
 #ifndef WIN32_
 
 #include <arduino.h>
@@ -44,13 +43,14 @@ UARTProtocol::UARTProtocol(const char* port, UARTProtocolBaudRate baudRate)
 
 
 #ifndef WIN32_
-	bufferRX_ = new FIFO(20);
+	bufferRX_ = new FIFO<uint8_t>(20);
 	serial_ = new SerialHW();
 	logger_ = LoggerSoftSerial::getInstance();
+	receivedCommand = new FIFO<CommandPackage*>(3);
 #else
-	bufferRX_ = new FIFOWin();
+	bufferRX_ = new FIFOWin<uint8_t>();
 	serial_ = new SerialLib();
-
+	receivedCommand = new FIFOWin<CommandPackage*>();
 #endif
 	logPrintf0(logger_, "Change from state");
 
@@ -58,33 +58,39 @@ UARTProtocol::UARTProtocol(const char* port, UARTProtocolBaudRate baudRate)
 }
 
 
-bool UARTProtocol::byteAvailable()
+bool UARTProtocol::dataAvailable()
 {
 	uint8_t data;
-	if (bufferRX_->peakByte(data))
+	if (bufferRX_->peakData(data))
 	{
 		return true;
 	}
 	return false;
 }
 
-bool UARTProtocol::getByte(uint8_t& data)
+bool UARTProtocol::getData(uint8_t& data)
 {
-	bool ret = byteAvailable();
+	bool ret = dataAvailable();
 	if (ret) {
-		ret = bufferRX_->popByte(data);
+		ret = bufferRX_->popData(data);
 	}
 	return ret;
 }
 
 void UARTProtocol::changeToState(const UARTProtocolStages setState)
 {
-	logPrintf2(logger_, "Change from state: %d -> %d", (int)state, (int)setState);
+	logPrintf3(logger_, "Change from state: %d -> %d - IgnoringData: %d", (int)state, (int)setState, ignorePackage_);
 	state = setState;
 }
 
 UARTProtocol::~UARTProtocol()
 {
+	CommandPackage* tempcmd;
+	while (receivedCommand->popData(tempcmd))
+	{
+		free(tempcmd->data);
+		free(tempcmd);
+	}
 	delete serial_;
 	delete bufferRX_;
 }
@@ -112,44 +118,114 @@ void UARTProtocol::run()
 	
 	
 	//Receive Machine
-	while (byteAvailable()) {
+	while (dataAvailable()) {
 		uint8_t data;
-	    getByte(data);
+	    getData(data);
 
 		switch (state)
 		{
 			case WAIT_SYNCBYTE: 
 				if(data == SYNC_BYTE)
 				{
+					clearStateMachineVars(false);
 					changeToState(WAIT_SIZE);
 				}
 				break;
 			case WAIT_SIZE: 
-				dataSize = data;
+				receiveCommandTemp = new CommandPackage();
+				receiveCommandTemp->dataSize = data;
+				logPrintf1(logger_, "Data Size: %d", receiveCommandTemp->dataSize);
 				changeToState(WAIT_NSIZE);
 				break;
 			case WAIT_NSIZE: 
-				if(twos_complement(dataSize) == data)
+				if(twos_complement(receiveCommandTemp->dataSize) == data)
 				{
-					changeToState(WAIT_COMMAND);
+					changeToState(WAIT_DESTADDR);
 				}else
 				{
-					dataSize = 0;
-					changeToState(WAIT_SYNCBYTE);
+					clearStateMachineVars(true);
+					changeToState(WAIT_DESTADDR);
 				}
 				
 				break;
 			case WAIT_DESTADDR: 
+				logPrintf2(logger_, "Pachakge Address:%d  Local Address:%d", localAdress_, data);
+				if(data == localAdress_ && !ignorePackage_)
+				{
+					receiveCommandTemp->destID = data;
+					if(receiveCommandTemp->dataSize > 0)
+					{
+						receiveCommandTemp->data = (unsigned char*)malloc((receiveCommandTemp->dataSize)*sizeof(unsigned char));
+						logPrintf0(logger_, "Data Allocated");
+					}
+				}
+				else
+				{
+					logPrintf0(logger_, "Ignoring Package diferent Dest Address");
+					clearStateMachineVars(true);
+				}
+				changeToState(WAIT_ORIADDR);
 				break;
 			case WAIT_ORIADDR: 
+				if(!ignorePackage_)
+				{
+					receiveCommandTemp->senderID = data;
+				}
+				changeToState(WAIT_COMMAND);
 				break;
 			case WAIT_COMMAND: 
+				if (!ignorePackage_)
+				{
+					receiveCommandTemp->command = data;
+				}
+				if(receiveCommandTemp->dataSize > 0)
+				{
+					changeToState(WAIT_DATA);
+				}else
+				{
+					changeToState(WAIT_CRC1);
+				}
+				
 				break;
-			case WAIT_DATA: 
+			case WAIT_DATA:
+				receiveCommandTemp->data[dataSizeTemp] = data;
+				logPrintf2(logger_, "Data[%d] : %d", dataSizeTemp, data);
+				dataSizeTemp++;
+				if(dataSizeTemp == receiveCommandTemp->dataSize)
+				{
+					changeToState(WAIT_CRC1);
+				}
 				break;
-			case WAIT_CRC: 
+			case WAIT_CRC1: 
+				if(!ignorePackage_)
+				{
+					crcPackage = CalculateCRC16(*receiveCommandTemp);
+					uint8_t crc1 = ((crcPackage >> 8) & 0x00FF);
+					logPrintf2(logger_, "CRC1:%d  Data:%d", crc1, data);
+					if (crc1 != data)
+					{
+						clearStateMachineVars(true);
+					}
+				}
+				changeToState(WAIT_CRC2);
 				break;
-			default: break;
+			case WAIT_CRC2:
+				uint8_t crc2;
+				crc2 = data & 0x00FF;
+				logPrintf2(logger_, "CRC2:%d  Data:%d", crc2, data);
+				if (!ignorePackage_ && crc2 == data)
+				{
+					receivedCommand->pushData(receiveCommandTemp);
+					receiveCommandTemp = nullptr;
+					logPrintf0(logger_, "Package Available");
+				}
+				clearStateMachineVars(true);
+				changeToState(WAIT_SYNCBYTE);
+				break;
+			default: 
+				clearStateMachineVars(true);
+				changeToState(WAIT_SYNCBYTE);
+				break;
 
 		}
 
@@ -168,7 +244,7 @@ bool UARTProtocol::CreatePackage(const CommandPackage& command, ProtocolPackage&
 {
 
 	protPackage.dataSize = command.dataSize + 8;
-	protPackage.data = static_cast<unsigned char*>(malloc(protPackage.dataSize));
+	protPackage.data = (unsigned char*)(malloc(protPackage.dataSize));
 
 	protPackage.data[0] = SYNC_BYTE;                   //SyncByte
 	protPackage.data[1] = command.dataSize;			  //Data Size
@@ -189,11 +265,37 @@ bool UARTProtocol::CreatePackage(const CommandPackage& command, ProtocolPackage&
 	return true;
 }
 
+CommandPackage* UARTProtocol::getReceivedPackage()
+{
+	CommandPackage* ret = nullptr;
+	if(receivedCommand->peakData(ret))
+	{
+		receivedCommand->popData(ret);
+		return  ret;
+	}
+	return ret;
+}
+
 uint8_t UARTProtocol::twos_complement(uint8_t val)
 {
 	return -(unsigned int)val;
 }
 
+void UARTProtocol::clearStateMachineVars(bool ignorePackage)
+{
+	if(receiveCommandTemp != nullptr)
+	{
+		if(receiveCommandTemp->data != nullptr)
+		{
+			free(receiveCommandTemp->data);
+		}
+		free(receiveCommandTemp);
+	}
+	dataSizeTemp = 0;
+	crcPackage = 0;
+	receiveCommandTemp = nullptr;
+	ignorePackage_ = ignorePackage;
+}
 
 void UARTProtocol::SendCommand(const uint8_t& command, const uint8_t& destAddr, const unsigned char* string, const uint8_t& size)
 {
@@ -203,7 +305,8 @@ void UARTProtocol::SendCommand(const uint8_t& command, const uint8_t& destAddr, 
 	cmdPackage.destID = destAddr;
 	cmdPackage.command = command;
 	cmdPackage.dataSize = size;
-	cmdPackage.data = string;
+	cmdPackage.data = (unsigned char*)(malloc(size * sizeof(unsigned char)));
+	memcpy(cmdPackage.data, string, size);
 	
 	bool packageOK = CreatePackage(cmdPackage, protPackage);
 	int bytesSent = serial_->sendBytes(protPackage.data, protPackage.dataSize);
@@ -211,7 +314,7 @@ void UARTProtocol::SendCommand(const uint8_t& command, const uint8_t& destAddr, 
 
 void UARTProtocol::pushByteInRXBuffer(uint8_t byte)
 {
-	if(!bufferRX_->pushByte(byte))
+	if(!bufferRX_->pushData(byte))
 	{
 		if(bufferRX_->getErrors() == FIFO_BUFFEROVERFLOW_ERROR)
 		{

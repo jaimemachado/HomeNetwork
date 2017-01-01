@@ -95,7 +95,6 @@
     <ClInclude Include="__vm\.HomeNetwork.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FIFO.cpp" />
     <ClCompile Include="LoggerSoftSerial.cpp" />
     <ClCompile Include="SerialHW.cpp" />
     <ClCompile Include="UARTProtocol.cpp" />

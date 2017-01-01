@@ -42,10 +42,14 @@ struct ProtocolPackage
 
 struct CommandPackage
 {
+	CommandPackage()
+	{
+		data = nullptr;
+	}
 	uint8_t destID;
 	uint8_t senderID;
 	uint8_t command;
-	const unsigned char* data;
+	unsigned char* data;
 	uint8_t dataSize;
 };
 
@@ -60,7 +64,8 @@ class UARTProtocol {
 		WAIT_ORIADDR = 4,
 		WAIT_COMMAND = 5,
 		WAIT_DATA = 6,
-		WAIT_CRC = 7
+		WAIT_CRC1 = 7,
+		WAIT_CRC2 = 8
 
 	};
 
@@ -76,24 +81,37 @@ class UARTProtocol {
 	ISerial* serial_;
 	LoggerSoftSerial* logger_;
 
-	bool byteAvailable();
-	bool getByte(uint8_t& data);
-	IFIFO* bufferRX_;
+	bool dataAvailable();
+	bool getData(uint8_t& data);
+	IFIFO<uint8_t>* bufferRX_;
 	uint8_t countLog;
 	void changeToState(const UARTProtocolStages setState);
 
 	//Protocol Info
-	uint8_t dataSize;
 	uint8_t localAdress_;
+
+	uint8_t dataSizeTemp;
 
 
 	uint16_t CalculateCRC16(const CommandPackage& package);
 
 	bool CreatePackage(const CommandPackage& command, ProtocolPackage& protPackage);
+
 	uint8_t twos_complement(uint8_t val);
+
+	void clearStateMachineVars(bool ignorePackage);
+	
+	IFIFO<CommandPackage*>* receivedCommand;
+	CommandPackage* receiveCommandTemp;
+
+	bool ignorePackage_;
+	uint16_t crcPackage;
+
+
 
 public:
 	~UARTProtocol();
+	CommandPackage* getReceivedPackage();
 	void init(uint8_t localAddress);
 	void run();
 	UARTProtocol(const char* port, UARTProtocolBaudRate baudRate);
@@ -102,6 +120,8 @@ public:
 
 	void pushByteInRXBuffer(uint8_t byte);
 };
+
+
 
 static UARTProtocol* uartInstance;
 

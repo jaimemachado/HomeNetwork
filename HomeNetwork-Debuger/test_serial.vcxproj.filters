@@ -24,9 +24,6 @@
     <ClCompile Include="..\HomeNetwork\UARTProtocol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Libraries\FIFO\FIFOWin.cpp">
-      <Filter>FIFO</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Libraries\FIFO\FIFOWin.h">

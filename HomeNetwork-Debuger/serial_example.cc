@@ -31,6 +31,7 @@
 
 #include "UARTProtocol.h"
 
+
 using std::string;
 using std::exception;
 using std::cout;
@@ -69,15 +70,15 @@ void print_usage()
 
 int run(int argc, char **argv)
 {
-	UARTProtocol* protocol = new UARTProtocol("COM7", BAUD9600);
+	{
+		UARTProtocol protocol("COM4", BAUD9600);
 
-	unsigned char temp[100];
-	strcpy((char*)temp, "Teste");
-	protocol->init(1);
-	protocol->SendCommand(1, 10, temp, 5);
+		unsigned char temp[100];
+		strcpy((char*)temp, "Teste");
+		protocol.init(1);
+		protocol.SendCommand(1, 1, temp, 5);
 
-	delete protocol;
-
+	}
   return 0;
 }
 

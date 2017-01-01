@@ -23,6 +23,8 @@ UARTProtocol protocol("", UARTProtocolBaudRate::BAUD9600);
 // Change this any time the EEPROM content changes
 const long magic_number = 0x5432;
 
+int delayLED = 50;
+
 struct __eeprom_data {
 	long magicValue;
 	uint8_t address;
@@ -62,10 +64,23 @@ void setup() {
 // the loop function runs over and over again until power down or reset
 void loop() {
 	digitalWrite(9, HIGH);   // turn the LED on (HIGH is the voltage level)
-	delay(50);              // wait for a second
+	delay(delayLED);              // wait for a second
 	digitalWrite(9, LOW);    // turn the LED off by making the voltage LOW
-	delay(50);              // wait for a second
+	delay(delayLED);              // wait for a second
 	protocol.run();
+
+	CommandPackage* package = protocol.getReceivedPackage();
+	if(package != nullptr)
+	{
+		char temp[20];
+		memset(temp, 0, 20);
+		memcpy(temp, package->data, package->dataSize);
+		if(strcmp(temp, "Teste") == 0)
+		{
+			delayLED = 500;
+		}
+		delete package;
+	}
 
 }
 

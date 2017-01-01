@@ -13,6 +13,8 @@
 
 #define logPrintf2(logger, a, b, c) sprintf(logger->logBuffer, a, b, c); logger->log(logger->logBuffer);
 
+#define logPrintf3(logger, a, b, c, d) sprintf(logger->logBuffer, a, b, c, d); logger->log(logger->logBuffer);
+
 #else
 
 #define logPrintf0(logger, a) printf(a);
@@ -20,6 +22,8 @@
 #define logPrintf1(logger, a, b) printf(a, b); 
 
 #define logPrintf2(logger, a, b, c) printf(a, b, c); 
+
+#define logPrintf3(logger, a, b, c, d) printf(a, b, c, d); 
 
 #endif
 

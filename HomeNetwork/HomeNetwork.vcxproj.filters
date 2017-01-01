@@ -53,9 +53,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FIFO.cpp">
-      <Filter>FIFO</Filter>
-    </ClCompile>
     <ClCompile Include="SerialHW.cpp">
       <Filter>Serial</Filter>
     </ClCompile>
